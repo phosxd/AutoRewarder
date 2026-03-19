@@ -1,142 +1,121 @@
 import os
+import json
 import random
 import time
+import webview
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 
-# ---------------- CONFIG ---------------- #
-# Chrome profile path
-CHROME_PROFILE_PATH = os.path.join(
+# Configs 
+# Create a separate folder for the bot's profile to avoid conflicts with your main browser
+EDGE_PROFILE_PATH = os.path.join(
     os.environ['USERPROFILE'],
     'AppData', 
     'Local', 
-    'SeleniumProfile'
+    'SeleniumEdgeProfile'
 )
 
-# chromedriver path
-CHROMEDRIVER_PATH = os.path.join(
-    os.environ['USERPROFILE'],
-    'desktop', 
-    'python',
-    'AutoRewarder',
-    'chromedriver-win64',
-    'chromedriver.exe'
-)
+JSON_FILE_PATH = "temp/queries.json"
 
-# ---------------- PHRASES ---------------- #
-templates = [
-    "How to {action} {topic} effectively?",
-    "Tips to {action} a {adj} {topic}",
-    "Best ways to {action} {topic} quickly",
-    "Can you {action} {adj} {topic}?",
-    "Why {topic} is considered {adj} when you {action} it",
-    "Learn how to {action} your {adj} {topic}",
-    "The secret to {action} {topic} like a pro",
-    "Top 10 methods to {action} {adj} {topic}",
-    "Why people {action} {topic} in a {adj} way",
-    "How {adj} {topic} can be {action}ed easily"
-]
+class AutoRewarderAPI:
+    def __init__(self):
+        pass
 
-topics = [
-    "Python programming", "machine learning", "data science", "web development", "cybersecurity",
-    "cloud computing", "mobile apps", "artificial intelligence", "blockchain technology", "game development",
-    "networking basics", "database management", "robotics", "quantum computing", "virtual reality",
-    "augmented reality", "software testing", "UI/UX design", "digital marketing", "big data analytics",
-    "cryptocurrency", "deep learning", "computer vision", "natural language processing", "software architecture",
-    "devops practices", "microservices", "internet of things", "ethical hacking", "computer graphics"
-]
-
-actions = [
-    "improve", "optimize", "learn", "master", "debug",
-    "build", "deploy", "test", "design", "implement",
-    "secure", "configure", "upgrade", "monitor", "maintain",
-    "scale", "automate", "analyze", "visualize", "code",
-    "refactor", "document", "integrate", "manage", "debug",
-    "train", "simulate", "calculate", "explore", "develop"
-]
-
-adjectives = [
-    "efficient", "scalable", "secure", "fast", "robust",
-    "modern", "user-friendly", "advanced", "innovative", "flexible",
-    "dynamic", "interactive", "reliable", "optimized", "custom",
-    "smart", "powerful", "intuitive", "clean", "responsive",
-    "lightweight", "modular", "agile", "versatile", "stable",
-    "professional", "cutting-edge", "automated", "effective", "streamlined"
-]
-
-# track used phrases to avoid duplicates
-used_phrases = set()
-
-def generate_unique_phrase():
-    # generate unique search phrases using templates, topics, actions, and adjectives
-    while True:
-        template = random.choice(templates)
-        topic = random.choice(topics)
-        action = random.choice(actions)
-        adj = random.choice(adjectives)
-        phrase = template.format(topic=topic, action=action, adj=adj)
-        if phrase not in used_phrases:
-            used_phrases.add(phrase)
-            return phrase
-
-def human_typing(element, text):
-    # simulate human-like typing
-    for char in text:
-        element.send_keys(char)
-        time.sleep(random.uniform(0.05, 0.18))  # delay between key presses
-
-def setup_driver():
-    # selinium moment :)
-    options = Options()
-    options.add_argument(f"--user-data-dir={CHROME_PROFILE_PATH}")
-    service = Service(CHROMEDRIVER_PATH)
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
-
-def perform_searches(driver, num_searches=30):
-    # the main loop to perform searches(loop 30 times - 90 points)
-    for i in range(num_searches):
+    def load_queries_from_json(self, filepath, num_needed):
+        # Load queries from JSON file and return a random sample
         try:
-            driver.get("https://www.bing.com")
-            time.sleep(random.uniform(3, 6))
+            with open(filepath, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+                all_queries = data.get("queries", [])
+                
+                if len(all_queries) < num_needed:
+                    print(f"[WARNING] In the JSON file, there are only {len(all_queries)} queries available, but {num_needed} are needed.")
+                    return all_queries
+                
+                return random.sample(all_queries, num_needed)
+            
+        except FileNotFoundError:
+            print(f"[ERROR] File {filepath} not found!")
+            return []
 
-            search_box = driver.find_element("name", "q")
-            search_box.clear()
+    def human_typing(self, element, text):
+        # Human-like typing with random delays between keystrokes
+        for char in text:
+            element.send_keys(char)
+            time.sleep(random.uniform(0.05, 0.18))
 
-            query = generate_unique_phrase()
-            print(f"Search #{i + 1}: {query}")
+    def setup_driver(self):
+        #Setup Microsoft Edge (driver will be downloaded automatically!)
+        options = Options()
+        options.add_argument(f"user-data-dir={EDGE_PROFILE_PATH}")
+        options.add_argument("--disable-blink-features=AutomationControlled") # Hide automation
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        
+        # Automatic driver dowload and setup
+        driver = webdriver.Edge(options=options)
+        return driver
 
-            human_typing(search_box, query)
-            search_box.send_keys(Keys.RETURN)
+    def perform_searches(self, driver, queries):
+        # Perform searches
+        for i, query in enumerate(queries):
+            try:
+                driver.get("https://www.bing.com")
+                time.sleep(random.uniform(4, 8))  # Random delay to mimic human behavior
 
-            time.sleep(random.uniform(5, 10))
-        except NoSuchElementException:
-            print(f"[ERROR] Search box not found on attempt #{i+1}")
-        except WebDriverException as e:
-            print(f"[ERROR] WebDriver exception on attempt #{i+1}: {e}")
-        except Exception as e:
-            print(f"[ERROR] Unexpected exception on attempt #{i+1}: {e}")
+                search_box = driver.find_element("name", "q")
+                search_box.clear()
 
-def close_running_chrome():
-    # close any chrome and chromedriver processes
-    os.system("taskkill /f /im chrome.exe >nul 2>&1")
-    os.system("taskkill /f /im chromedriver.exe >nul 2>&1")
-    time.sleep(3)
+                print(f"Search #{i + 1}: {query}")
 
-def main():
-    # main function to run the script
-    print("Starting AutoRewarder...")
-    close_running_chrome()
-    driver = setup_driver()
-    try:
-        perform_searches(driver, num_searches=30)
-    finally:
-        driver.quit()
+                self.human_typing(search_box, query)
+                search_box.send_keys(Keys.RETURN)
 
-# standard entry point for the script
+                time.sleep(random.uniform(5, 10))
+                
+            except NoSuchElementException:
+                print(f"[ERROR] Search box not found on attempt #{i+1}")
+            except WebDriverException as e:
+                print(f"[ERROR] WebDriver error on attempt #{i+1}: {e}")
+            except Exception as e:
+                print(f"[ERROR] Unknown error on attempt #{i+1}: {e}")
+
+    def close_running_edge(self):
+        # Close running Edge processes to avoid conflicts with the Selenium profile
+        os.system("taskkill /f /im msedge.exe >nul 2>&1")
+        os.system("taskkill /f /im msedgedriver.exe >nul 2>&1")
+        time.sleep(2)
+
+    def main(self):
+        print("Starting AutoRewarder (Edge Edition)...")
+        self.close_running_edge()
+        
+        # 1. Get queries to search from JSON file
+        queries_to_search = self.load_queries_from_json(JSON_FILE_PATH, num_needed=30)
+        
+        if not queries_to_search:
+            print("No queries available for search. Exiting.")
+            return
+
+        # 2. Setup browser
+        self.driver = self.setup_driver()
+        try:
+            # 3. Perform searches
+            self.perform_searches(self.driver, queries_to_search)
+        finally:
+            self.driver.quit()
+            print("Done!")
+
 if __name__ == "__main__":
-
-    main()
+    api = AutoRewarderAPI()
+    window = webview.create_window(
+        title= "AutoRewarder",
+        url='GUI/index.html',
+        js_api=api,
+        width=570,
+        height=494,
+        resizable=False,
+        #frameless=True
+    )
+    webview.start(icon=None) # add an icon 
