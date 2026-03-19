@@ -1,0 +1,163 @@
+:root {
+  --bg-main: #0d1117;        /* Main background color */
+  --bg-panel: #161b22;       /* Panel background color */
+  --text-main: #c9d1d9;      /* Main text */
+  --text-muted: #8b949e;     /* Muted text */
+  --accent: #2f81f7;         /* Blue button */
+  --accent-hover: #1f6feb;   /* Blue button hover */
+  --border: #30363d;         /* Border color */
+  --success: #2ea043;        /* Green success */
+  --log-bg: #010409;         /* Background log color */
+  --log-text: #7ee787;       /* Log text color */
+}
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  user-select: none; /* user can't select text */
+  overflow: hidden;
+}
+
+.container {
+  width: 500px;
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+h2 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+}
+
+.version {
+  font-size: 12px; 
+  color: var(--text-muted); 
+  margin-left: auto;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+input {
+  width: 40px;
+  padding: 8px;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-main);
+  font-size: 14px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus { border-color: var(--accent); }
+
+button {
+  padding: 8px 16px;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover { background-color: var(--accent-hover); }
+
+button:disabled {
+  background-color: var(--border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--text-muted);
+}
+/* Анимация зеленой точки, когда бот работает */
+.dot.active { 
+  background-color: var(--success); 
+  box-shadow: 0 0 8px var(--success); 
+}
+
+/* --- СТИЛИ НАШЕГО ТЕРМИНАЛА --- */
+#log_area {
+  background-color: var(--log-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  height: 220px;
+  overflow-y: auto;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--log-text);
+}
+
+/* Мигающий курсор (блок) в конце терминала */
+#log_area::after {
+  content: "_";
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Тонкий кастомный скроллбар */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-main); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
