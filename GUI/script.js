@@ -1,4 +1,4 @@
-function startBot() {
+function start_bot() {
   const countStr = document.getElementById('count_input').value;
   const count = parseInt(countStr, 10);
 
@@ -50,4 +50,8 @@ function enable_start_button() {
   
   document.getElementById('dot').classList.remove('active');
   document.getElementById('status_text').innerText = "Waiting";
+}
+
+function show_history() {
+
 }

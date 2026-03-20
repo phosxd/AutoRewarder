@@ -3,6 +3,7 @@ import json
 import random
 import time
 import webview
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.keys import Keys
@@ -24,9 +25,39 @@ class AutoRewarderAPI:
         self.webview_window = None
     
     def set_window(self, window):
+        self.history_file = "history.json"
         # store reference to webview window so Python can call JS (evaluate_js)
         self.webview_window = window
+
+    # Load search history from JSON file
+    def get_history(self):
+        if not os.path.exists(self.history_file):
+            return []
+        
+        with open(self.history_file, 'r', encoding='utf-8') as file:
+            return json.load(file)
     
+    # Add a search query to history JSON file
+    def add_to_history(self, query_text, status):
+        now = datetime.now()
+        current_date = now.strftime("%d-%m-%Y")
+        current_time = now.strftime("%H:%M:%S")
+
+        # Create a new record with date, time, query, and status
+        new_record = {
+            "date": current_date,
+            "time": current_time,
+            "query": query_text, 
+            "status": status
+        }
+
+        history_list = self.get_history()
+        
+        history_list.append(new_record)
+
+        with open(self.history_file, 'w', encoding='utf-8') as file:
+            json.dump(history_list, file, ensure_ascii=False, indent=4)
+
     def log(self, message):
         # send message to UI
         if self.webview_window:
@@ -86,13 +117,21 @@ class AutoRewarderAPI:
                 search_box.send_keys(Keys.RETURN)
 
                 time.sleep(random.uniform(5, 10))
+
+                self.add_to_history(query, "Success")
                 
             except NoSuchElementException:
                 self.log(f"[ERROR] Search box not found on attempt #{i+1}")
+                self.add_to_history(query, "[ERROR] Search box not found")
+
             except WebDriverException as e:
                 self.log(f"[ERROR] WebDriver error on attempt #{i+1}: {e}")
+                short_error = str(e).split("\n")[0][:50]
+                self.add_to_history(query, f"[ERROR] WebDriver Error: {short_error}")
+
             except Exception as e:
                 self.log(f"[ERROR] Unknown error on attempt #{i+1}: {e}")
+                self.add_to_history(query, f"[ERROR] Unknown Error: {str(e)[:50]}")
 
     def close_running_edge(self):
         # Close running Edge processes to avoid conflicts with the Selenium profile
