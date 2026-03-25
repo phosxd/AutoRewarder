@@ -6,6 +6,11 @@ function start_bot() {
     alert("Please enter a valid positive number!");
     return;
   }
+
+  if (count > 100) {
+    alert("Please enter a number less than or equal to 100!");
+    return;
+  }
   
   // 1. Block the button and change its text
   document.getElementById('start_btn').disabled = true;
@@ -54,4 +59,8 @@ function enable_start_button() {
 
 function show_history() {
   pywebview.api.open_history_window();
+}
+
+function hideBrowserToggle() {
+  const checkbox = document.getElementById('hide_browser_checkbox');
 }

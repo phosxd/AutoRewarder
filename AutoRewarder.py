@@ -11,21 +11,27 @@ from selenium.common.exceptions import NoSuchElementException, WebDriverExceptio
 
 # Configs 
 # Create a separate folder for the bot's profile to avoid conflicts with your main browser
-EDGE_PROFILE_PATH = os.path.join(
-    os.environ['USERPROFILE'],
-    'AppData', 
-    'Local', 
-    'SeleniumEdgeProfile'
+APP_DIR = os.path.join(
+    os.environ["USERPROFILE"],
+    "AppData", 
+    "Local", 
+    "AutoRewarder"
 )
 
+if not os.path.exists(APP_DIR):
+    os.makedirs(APP_DIR)
+
+EDGE_PROFILE_PATH = os.path.join(APP_DIR, "EdgeProfile")
+HISTORY_FILE_PATH = os.path.join(APP_DIR, "history.json")
+SETTINGS_FILE_PATH = os.path.join(APP_DIR, "settings.json")
 JSON_FILE_PATH = "queries.json"
 
 class AutoRewarderAPI:
     def __init__(self):
         self._webview_window = None
+        self.history_file = HISTORY_FILE_PATH
     
     def set_window(self, window):
-        self.history_file = "history.json"
         # store reference to webview window so Python can call JS (evaluate_js)
         self._webview_window = window
 
@@ -47,7 +53,7 @@ class AutoRewarderAPI:
         if not os.path.exists(self.history_file):
             return []
         
-        with open(self.history_file, 'r', encoding='utf-8') as file:
+        with open(self.history_file, "r", encoding="utf-8") as file:
             return json.load(file)
     
     # Add a search query to history JSON file
@@ -68,7 +74,7 @@ class AutoRewarderAPI:
         
         history_list.append(new_record)
 
-        with open(self.history_file, 'w', encoding='utf-8') as file:
+        with open(self.history_file, "w", encoding="utf-8") as file:
             json.dump(history_list, file, ensure_ascii=False, indent=4)
 
     def log(self, message):
@@ -83,7 +89,7 @@ class AutoRewarderAPI:
     def load_queries_from_json(self, filepath, num_needed):
         # load queries from JSON file and return a random sample
         try:
-            with open(filepath, 'r', encoding='utf-8') as file:
+            with open(filepath, "r", encoding="utf-8") as file:
                 data = json.load(file)
                 all_queries = data.get("queries", [])
                 
@@ -108,9 +114,10 @@ class AutoRewarderAPI:
         #Setup Microsoft Edge (driver will be downloaded automatically!)
         options = Options()
         options.add_argument(f"--user-data-dir={EDGE_PROFILE_PATH}")
+        options.add_argument("--profile-directory=Default") # Use the default profile or change to a specific one if needed
         options.add_argument("--disable-blink-features=AutomationControlled") # Hide automation
         options.add_argument("--no-default-browser-check")  # Don't check if Edge is default
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        options.add_experimental_option("excludeSwitches", ["enable-automation"]) # Remove "Browser is being controlled by automated test software" infobar
         
         # Automatic driver dowload and setup
         _driver = webdriver.Edge(options=options)
