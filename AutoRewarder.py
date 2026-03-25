@@ -35,8 +35,8 @@ class AutoRewarderAPI:
         # store reference to webview window so Python can call JS (evaluate_js)
         self._webview_window = window
 
+    # Open a new window to show search history
     def open_history_window(self):
-        # open a new window to show search history
         webview.create_window(
             title="Query History",
             url='GUI/history.html',
@@ -47,6 +47,68 @@ class AutoRewarderAPI:
             background_color='#0d1117',
             text_select=True
         )
+    
+    def get_settings(self):
+        if not os.path.exists(SETTINGS_FILE_PATH):
+            default_settings = {
+                "first_setup_done": False
+            }
+
+            with open(SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
+                json.dump(default_settings, file, indent=4)
+            return default_settings
+        
+        with open(SETTINGS_FILE_PATH, "r", encoding="utf-8") as file:
+            return json.load(file)
+        
+    def mark_up_as_done(self):
+        settings = self.get_settings()
+        settings["first_setup_done"] = True
+
+        with open(SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
+            json.dump(settings, file, indent=4)
+    
+    def first_setup(self):
+        self.log("Starting First Setup... Please log in to your Microsoft account.")
+
+        setup_driver = self.setup_driver(headless=False)
+
+        try:
+            self.log("Opening Bing page...")
+            self.log("Log in directly on the Bing page. IMPORTANT: Do NOT sync the Edge profile! Just log in and close the browser when done.")
+            time.sleep(4)
+            setup_driver.get("https://www.bing.com")
+            self.log("Waiting for you to log in. Close the browser window when done!")
+
+            while len(setup_driver.window_handles) > 0:
+                time.sleep(1)
+
+        except Exception as e:
+            error_msg = str(e).lower()
+
+            if "target window already closed" in error_msg or "disconnected" in error_msg or "not reachable" in error_msg:
+                pass 
+            else:
+                # If unexpected error, log it and add to history
+                self.log(f"[ERROR] Real error during setup: {e}")
+                self.add_to_history("First Setup Failed", "Error")
+                return
+
+        finally:
+            try:
+                setup_driver.quit()
+            except Exception:
+                pass
+
+            self.log("First Setup completed! You can now start the bot.")
+
+            self.mark_up_as_done()
+
+            self.add_to_history("First Setup Completed", "Success")
+
+            if self._webview_window:
+                self._webview_window.evaluate_js("enable_start_button()")
+                self._webview_window.evaluate_js("hide_setup_button()")
 
     # Load search history from JSON file
     def get_history(self):
