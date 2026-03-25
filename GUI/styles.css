@@ -107,6 +107,10 @@ button:disabled {
   cursor: not-allowed;
 }
 
+#setup_btn {
+  margin-left: 200px;
+}
+
 .status-bar {
   display: flex;
   justify-content: space-between;

@@ -1,4 +1,31 @@
+let isSetupDone = false;
+
+function start_first_setup() {
+  document.getElementById('start_btn').disabled = true;
+  
+  let setupBtn = document.getElementById('setup_btn');
+  if (setupBtn) {
+    setupBtn.disabled = true;
+  }
+
+  pywebview.api.first_setup();
+}
+
+function hide_setup_button() {
+  isSetupDone = true;
+  let setupBtn = document.getElementById('setup_btn');
+  if (setupBtn) {
+    setupBtn.style.display = 'none';
+  }
+}
+
 function start_bot() {
+
+  if (isSetupDone === false) {
+    alert("Please complete the First Setup before starting!");
+    return;
+  }
+
   const countStr = document.getElementById('count_input').value;
   const count = parseInt(countStr, 10);
 
@@ -64,3 +91,12 @@ function show_history() {
 function hideBrowserToggle() {
   const checkbox = document.getElementById('hide_browser_checkbox');
 }
+
+window.addEventListener('pywebviewready', function() {
+    
+  pywebview.api.get_settings().then(function(settings) {
+    if (settings.first_setup_done === true) {
+      hide_setup_button();
+    }
+  });
+});
