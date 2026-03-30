@@ -30,7 +30,7 @@ class AutoRewarderAPI:
     def __init__(self):
         self._webview_window = None
         self.history_file = HISTORY_FILE_PATH
-        
+
         settings = self.get_settings()
         self.hide_browser = settings.get("hide_browser", False)
 
@@ -51,6 +51,7 @@ class AutoRewarderAPI:
             text_select=True
         )
     
+    # Get settings from settings.json or create it with default values if it doesn't exist
     def get_settings(self):
         if not os.path.exists(SETTINGS_FILE_PATH):
             default_settings = {
@@ -64,7 +65,8 @@ class AutoRewarderAPI:
         
         with open(SETTINGS_FILE_PATH, "r", encoding="utf-8") as file:
             return json.load(file)
-        
+
+    # Mark in settings that first setup is done    
     def mark_up_as_done(self):
         settings = self.get_settings()
         settings["first_setup_done"] = True
@@ -72,6 +74,7 @@ class AutoRewarderAPI:
         with open(SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
             json.dump(settings, file, indent=4)
     
+    # First setup function to let user log in to their Microsoft account and prepare the Edge profile for the bot
     def first_setup(self):
         self.log("Starting First Setup... Please log in to your Microsoft account.")
 
@@ -114,6 +117,7 @@ class AutoRewarderAPI:
                 self._webview_window.evaluate_js("enable_start_button()")
                 self._webview_window.evaluate_js("hide_setup_button()")
 
+    # Function for toggle browser hidden mode and save the setting
     def set_hide_browser(self, is_hide):
         self.hide_browser = is_hide
 
@@ -127,12 +131,17 @@ class AutoRewarderAPI:
 
     # Load search history from JSON file
     def get_history(self):
-        if not os.path.exists(self.history_file):
+        if not os.path.exists(self.history_file) or os.path.getsize(self.history_file) == 0:
             return []
         
-        with open(self.history_file, "r", encoding="utf-8") as file:
-            return json.load(file)
-    
+        try:
+            with open(self.history_file, "r", encoding="utf-8") as file:
+                return json.load(file)
+        except json.JSONDecodeError:
+            self.log("[ERROR] History file was empty or damaged. Starting with a fresh one.")
+            return []
+
+    # Save search history to temp file first and then replace the original file to avoid data corruption    
     def save_history(self, history_list):
         temp_file = self.history_file + ".tmp"
 
@@ -162,8 +171,8 @@ class AutoRewarderAPI:
 
         self.save_history(history_list)
 
+    # Send message to UI log area
     def log(self, message):
-        # send message to UI
         if self._webview_window:
             try:
                 safe_message = json.dumps(message)
@@ -171,8 +180,8 @@ class AutoRewarderAPI:
             except Exception as e:
                 print(f"Log error: {e}")
 
+    # Load queries from JSON file and return a random sample
     def load_queries_from_json(self, filepath, num_needed):
-        # load queries from JSON file and return a random sample
         try:
             with open(filepath, "r", encoding="utf-8") as file:
                 data = json.load(file)
@@ -189,14 +198,14 @@ class AutoRewarderAPI:
             self.add_to_history("N/A", f"[ERROR] File {filepath} not found")
             return []
 
+    # Human-like typing with random delays between keystrokes
     def human_typing(self, element, text):
-        # Human-like typing with random delays between keystrokes
         for char in text:
             element.send_keys(char)
             time.sleep(random.uniform(0.05, 0.18))
 
+    # Setup Selenium WebDriver
     def setup_driver(self, headless=None):
-
         if headless is None:
             headless = self.hide_browser
 
@@ -218,8 +227,8 @@ class AutoRewarderAPI:
         _driver = webdriver.Edge(options=options)
         return _driver
 
+    # Perform searches with human-like behavior and log results
     def perform_searches(self, driver, queries):
-        # Perform searches
         for i, query in enumerate(queries):
             try:
                 # Open Bing homepage
@@ -283,6 +292,9 @@ class AutoRewarderAPI:
                 self.log(f"[ERROR] Unknown error on attempt #{i+1}: {e}")
                 self.add_to_history(query, f"[ERROR] Unknown Error: {str(e)[:50]}")
 
+    # Close running Edge processes to avoid conflicts with the Selenium profile
+    # Optional, because the new bot uses a separate profile to avoid conflicts, so it should work even if the main Edge browser is open.
+    # But can be useful if users have issues with the bot not working due to conflicts with their main Edge browser
     def close_running_edge(self):
         # Close running Edge processes to avoid conflicts with the Selenium profile
         # os.system("taskkill /f /im msedge.exe >nul 2>&1")
@@ -290,6 +302,7 @@ class AutoRewarderAPI:
         # time.sleep(2)
         return
 
+    # Main function to run the bot
     def main(self, count):
         self.log("Starting AutoRewarder (Edge Edition)...")
         
@@ -319,6 +332,7 @@ class AutoRewarderAPI:
             if self._webview_window:
                 self._webview_window.evaluate_js("enable_start_button()")
 
+# Entry point of the application
 if __name__ == "__main__":
     api = AutoRewarderAPI()
     window = webview.create_window(
