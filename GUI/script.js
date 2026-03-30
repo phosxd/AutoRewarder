@@ -97,6 +97,13 @@ function hideBrowserToggle() {
   pywebview.api.set_hide_browser(Boolean(toggle.checked));
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+  const toggle = document.getElementById('hideBrowserToggle');
+  if (toggle) {
+    toggle.addEventListener('change', hideBrowserToggle);
+  }
+});
+
 window.addEventListener('pywebviewready', function() {
     
   pywebview.api.get_settings().then(function(settings) {
@@ -110,11 +117,4 @@ window.addEventListener('pywebviewready', function() {
     }
 
   });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  const toggle = document.getElementById('hideBrowserToggle');
-  if (toggle) {
-    toggle.addEventListener('change', hideBrowserToggle);
-  }
 });

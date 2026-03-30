@@ -30,8 +30,10 @@ class AutoRewarderAPI:
     def __init__(self):
         self._webview_window = None
         self.history_file = HISTORY_FILE_PATH
-        self.hide_browser = False
-    
+        
+        settings = self.get_settings()
+        self.hide_browser = settings.get("hide_browser", False)
+
     def set_window(self, window):
         # store reference to webview window so Python can call JS (evaluate_js)
         self._webview_window = window
@@ -52,7 +54,8 @@ class AutoRewarderAPI:
     def get_settings(self):
         if not os.path.exists(SETTINGS_FILE_PATH):
             default_settings = {
-                "first_setup_done": False
+                "first_setup_done": False,
+                "hide_browser": False
             }
 
             with open(SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
@@ -113,6 +116,13 @@ class AutoRewarderAPI:
 
     def set_hide_browser(self, is_hide):
         self.hide_browser = is_hide
+
+        settings = self.get_settings()
+        settings["hide_browser"] = is_hide
+
+        with open(SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
+            json.dump(settings, file, indent=4)
+
         self.log(f"Browser hidden mode: {'ON' if is_hide else 'OFF'}")
 
     # Load search history from JSON file
@@ -122,6 +132,15 @@ class AutoRewarderAPI:
         
         with open(self.history_file, "r", encoding="utf-8") as file:
             return json.load(file)
+    
+    def save_history(self, history_list):
+        temp_file = self.history_file + ".tmp"
+
+        with open(temp_file, "w", encoding="utf-8") as file:
+            json.dump(history_list, file, indent=4)
+        
+        # Replace the original file with the updated one
+        os.replace(temp_file, self.history_file)
     
     # Add a search query to history JSON file
     def add_to_history(self, query_text, status):
@@ -141,8 +160,7 @@ class AutoRewarderAPI:
         
         history_list.append(new_record)
 
-        with open(self.history_file, "w", encoding="utf-8") as file:
-            json.dump(history_list, file, ensure_ascii=False, indent=4)
+        self.save_history(history_list)
 
     def log(self, message):
         # send message to UI
