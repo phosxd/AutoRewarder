@@ -97,6 +97,55 @@ function hideBrowserToggle() {
   pywebview.api.set_hide_browser(Boolean(toggle.checked));
 }
 
+let loaderInterval;
+
+function start_loader() {
+  clearInterval(loaderInterval);
+
+  let startBtn = document.getElementById('start_btn');
+  if (startBtn) {
+    startBtn.disabled = true;
+  }
+
+  const tryShowLoader = () => {
+    pywebview.api.check_driver_status().then(isLoading => {
+      if (isLoading === true && !document.getElementById('inline_loader')) {
+        let logDiv = document.getElementById('log_area');
+        let loaderHTML = `
+          <div id="inline_loader" style="margin: 10px 0;">
+            <span style="color: var(--accent);">> System: Preparing Web Driver...</span>
+            <div class="progress-bar-indeterminate" style="margin-top: 5px;"></div>
+          </div>`
+        logDiv.insertAdjacentHTML('beforeend', loaderHTML);
+        logDiv.scrollTop = logDiv.scrollHeight;
+      }
+
+      // If loading is done, stop the loader and enable the start button
+      if (isLoading === false) {
+        stop_loader();
+      }
+    });
+  };
+
+  // Check immediately and then every 700ms until the driver is loaded
+  tryShowLoader();
+  loaderInterval = setInterval(tryShowLoader, 500);
+}
+
+function stop_loader() {
+  clearInterval(loaderInterval);
+
+  let inlineLoader = document.getElementById('inline_loader');
+  if (inlineLoader) {
+    inlineLoader.remove();
+  }
+
+  let startBtn = document.getElementById('start_btn');
+  if (startBtn && isSetupDone) {
+    startBtn.disabled = false;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const toggle = document.getElementById('hideBrowserToggle');
   if (toggle) {
@@ -110,6 +159,8 @@ window.addEventListener('pywebviewready', function() {
     if (settings.first_setup_done === true) {
       hide_setup_button();
     }
+
+    start_loader();
 
     const toggle = document.getElementById('hideBrowserToggle');
     if (toggle) {

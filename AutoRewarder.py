@@ -3,6 +3,7 @@ import json
 import random
 import time
 import webview
+import threading
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.edge.options import Options
@@ -28,15 +29,26 @@ JSON_FILE_PATH = "queries.json"
 
 class AutoRewarderAPI:
     def __init__(self):
-        self._webview_window = None
-        self.history_file = HISTORY_FILE_PATH
+        self._webview_window = None # Reference to the webview window for logging
+        self.history_file = HISTORY_FILE_PATH 
+        self._driver_loader_thread_started = False
 
-        settings = self.get_settings()
-        self.hide_browser = settings.get("hide_browser", False)
+        # Load settings from file or create with default values if it doesn't exist
+        settings = self.get_settings() 
+        self.hide_browser = settings.get("hide_browser", False) # Default mode is visible browser or it will run in hidden mode (headless)
+
+        self.is_driver_loading = False
 
     def set_window(self, window):
         # store reference to webview window so Python can call JS (evaluate_js)
         self._webview_window = window
+
+        # Loading the driver in a bg thread to avoid UI freezing
+        # This is especially important during the first start or when Edge updates are released
+        # (every 1-2 weeks), because downloading a new driver can take some time.
+        if not self._driver_loader_thread_started:
+            self._driver_loader_thread_started = True
+            threading.Thread(target=self.load_driver_in_background, daemon=True).start()
 
     # Open a new window to show search history
     def open_history_window(self):
@@ -50,6 +62,28 @@ class AutoRewarderAPI:
             background_color='#0d1117',
             text_select=True
         )
+    
+    # Load the WebDriver in a bg thread
+    def load_driver_in_background(self):
+        self.is_driver_loading = True
+
+        try:
+            # Trigger Selenium Manager to download/prepare the driver
+            driver = self.setup_driver(headless=True)
+            driver.quit()
+        except Exception as e:
+            self.log(f"[ERROR] Error loading WebDriver: {e}")
+            self.add_to_history("N/A", f"[ERROR] WebDriver loading failed: {str(e)[:50]}")
+        finally:
+            self.is_driver_loading = False
+
+            # if 
+            if hasattr(self, "_webview_window") and self._webview_window:
+                self._webview_window.evaluate_js("stop_loader()")
+    
+    # Fun for JS to check status of the driver
+    def check_driver_status(self):
+        return self.is_driver_loading
     
     # Get settings from settings.json or create it with default values if it doesn't exist
     def get_settings(self):
@@ -82,10 +116,10 @@ class AutoRewarderAPI:
 
         try:
             self.log("Opening Bing page...")
-            self.log("Log in directly on the Bing page. IMPORTANT: Do NOT sync the Edge profile! Just log in and close the browser when done.")
+            self.log("Log in directly on the Bing page.\nIMPORTANT: Do NOT sync the Edge profile!\nJust log in and close the browser when done.")
             time.sleep(4)
             setup_driver.get("https://www.bing.com")
-            self.log("Waiting for you to log in. Close the browser window when done!")
+            self.log("Waiting for you to log in...\nClose the browser window when done!")
 
             while len(setup_driver.window_handles) > 0:
                 time.sleep(1)
