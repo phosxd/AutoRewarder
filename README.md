@@ -1,35 +1,142 @@
 # AutoRewarder
 
-AutoRewarder is a Python script for automating search queries via Selenium WebDriver. The script generates unique search phrases, opens a browser, and simulates human typing (character-by-character with delays) to perform a sequence of searches.
+A desktop automation app for Microsoft Rewards that performs Bing searches with human-like behavior.
+Built with Python ([pywebview](https://pywebview.flowrl.com/) and [selenium](https://www.selenium.dev/)).
+The UI is rendered with HTML/CSS/JS in a native window, while the automation logic is handled in Python.
 
-# Purpose
-Educational and research purposes — testing, experiments with automation, and simulating user behavior.
+Fully portable: no installation required for end users (release build).
 
-## ⚠️ IMPORTANT DISCLAIMER
+## Screenshots
 
-This repository contains a search automation script provided **for educational and research purposes only**. The script *can be used* to automate web searches and may therefore be misused to attempt automatic point-earning in loyalty programs (for example Microsoft Rewards). Use of automation to interact with such services typically violates their Terms of Service and can result in account suspension, loss of points, or other penalties.
+| Main Window | History Window |
+| :---: | :---: |
+| Coming soon | Coming soon |
 
-**The author does NOT encourage or support using this script to bypass service rules, commit fraud, or gain an unfair advantage.** You are solely responsible for any consequences resulting from your use of this code. Use it only in controlled environments, with accounts and systems you own or have explicit permission to test.
+## Tech Stack
 
-By using the code in this repository you acknowledge that:
-- You have read and understood the Terms of Service of any platform you interact with.
-- You will not use the code to violate those terms, to harm others, or to engage in illegal activity.
+| Layer | Technology |
+|-------|------------|
+| Backend | Python 3.12, selenium, pywebview |
+| Frontend | HTML, CSS, JavaScript |
+| Bridge | pywebview JS API (pywebview.api) |
+| Build | PyInstaller |
+
+## System Requirements
+
+- **OS**: Windows 10 or later
+- **Browser**: Microsoft Edge (driver managed by Selenium Manager)
+- **RAM**: Minimum 512 MB (1 GB recommended)
+- **Disk Space**: ~50 MB
+
+## Features
+
+**User Features:**
+- First Setup flow with dedicated Edge profile for isolation
+- Optional hide-browser mode (headless automation toggle)
+- Live terminal-like logs with real-time updates
+- Local history view with date, time, query, and execution status
+- One-click start automation (1-99 searches per session)
+- Safe recovery for corrupted settings/history files
+
+**Automation Features:**
+- Background WebDriver warmup at startup for faster execution
+- Human-like search behavior (typing delays, random pauses, smooth scrolling)
+- Uses real-world queries from assets/queries.json (3428 unique entries)
+- Randomized delays to avoid detection
+- Separate browser thread isolation
+
+## Quick Start (For Users)
+
+You do not need Python to use release builds.
+
+1. Download `AutoRewarder.exe` from releases
+2. Extract and run
+3. Complete First Setup
+4. Start automation
+
+For detailed guide, see [USER_GUIDE.md](USER_GUIDE.md)
+
+## Development Setup (For Developers)
+
+1. Clone the repository.
+2. Create and activate a virtual environment.
+3. Install dependencies.
+4. Run the app.
+
+```bash
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python AutoRewarder.py
+```
+
+## Build Portable Release
+
+Recommended (reproducible) build using spec:
+
+```bash
+.\.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean AutoRewarder.spec
+```
+
+## Project Structure
+
+```text
+AutoRewarder/
+├── GUI/
+│   ├── index.html        # Main window UI
+│   ├── history.html      # History view UI
+│   ├── script.js         # Frontend logic and bridge calls
+│   ├── styles.css        # App styling
+│   └── normalize.css     # CSS reset
+├── assets/
+│   ├── icon.ico          # App icon
+│   └── queries.json      # Queries list (3428 unique queries)
+├── AutoRewarder.py       # Python backend and webview window
+├── AutoRewarder.spec     # PyInstaller build spec
+├── LICENSE              
+├── README.md            
+└── requirements.txt      
+```
+
+## Runtime Data
+
+The app stores runtime files in:
+
+```text
+%USERPROFILE%\AppData\Local\AutoRewarder
+```
+
+Created files and folders:
+```text
+EdgeProfile/   # Separate Edge profile for WebDriver
+settings.json  # User settings (first_setup_done, hide_browser)
+history.json   # Search history (date, time, query, status)
+```
 
 
-# Functionality
-Generates unique search phrases from templates, topics, actions, and adjectives.
-Simulates human typing: sends characters one-by-one with random delays.
-Launches a browser via Selenium WebDriver (compatible with any browser that has a WebDriver).
-Handles common Selenium errors and logs performed searches.
-Allows configuring the number of searches per run.
+## Troubleshooting
 
-# Handling browser processes
-Before starting, the script attempts to terminate conflicting browser and driver processes to avoid issues with repeated sessions. The original code used taskkill for chrome.exe/chromedriver.exe; in the README this is described more generally as “browser/driver” because the user may use a different browser and its corresponding WebDriver.
+**Edge WebDriver not found or outdated:**
+- Ensure Microsoft Edge is installed
+- Try restarting the application (Selenium Manager will auto-download driver)
+- Check that Edge version is up to date
+- Delete `%USERPROFILE%\AppData\Local\AutoRewarder\EdgeProfile` and retry
 
-# Notes and limitations
-The script is intended only for educational and research use.
-Any attempts to automate actions in commercial/user-facing services (for example, mass-earning points in Microsoft Rewards) are at your own risk and are likely to violate the service’s terms.
-Do not run the script with elevated privileges (administrator/root) unless absolutely necessary — it is safer to run under a normal user account.
+**Application crashes on startup:**
+- Delete `EdgeProfile/` folder in `%USERPROFILE%\AppData\Local\AutoRewarder`
+- Run First Setup again
+- Verify dependencies: `pip install -r requirements.txt` if running from source
+- Check Windows Event Viewer for error details
 
-# Contact 
-If you have any questions, issues, or suggestions — please open an issue on the repository
+**Searches not completing:**
+- Verify internet connection
+- Check that Edge is not blocked by antivirus/firewall
+
+## Disclaimer
+
+Using automation against third-party services may violate their Terms of Service.
+You are responsible for your own usage.
+
+## Contact
+
+Open an issue for bugs, ideas, or questions.
