@@ -20,7 +20,7 @@ Welcome! This guide will help you get started with AutoRewarder and explain all 
 ## Installation
 
 ### Step 1: Download
-1. Go to the [Releases page](../../releases) on GitHub
+1. Go to the [Releases page](https://github.com/safarsin/AutoRewarder/releases/tag/v2.0) on GitHub
 2. Find the latest release
 3. Download the file named `AutoRewarder.zip`
 

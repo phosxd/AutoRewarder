@@ -4,7 +4,7 @@ A desktop automation app for Microsoft Rewards that performs Bing searches with 
 Built with Python ([pywebview](https://pywebview.flowrl.com/) and [selenium](https://www.selenium.dev/)).
 The UI is rendered with HTML/CSS/JS in a native window, while the automation logic is handled in Python.
 
-Fully portable: no installation required for end users (release build).
+Fully portable: no installation required for end users [release build](https://github.com/safarsin/AutoRewarder/releases/tag/v2.0).
 
 > **For a complete user guide, see [USER_GUIDE.md](USER_GUIDE.md)**
 
