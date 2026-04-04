@@ -1,32 +1,40 @@
 # AutoRewarder
 
 A desktop automation app for Microsoft Rewards that performs Bing searches with human-like behavior.
-Built with Python ([pywebview](https://pywebview.flowrl.com/) and [selenium](https://www.selenium.dev/)).
+Built with Python, pywebview, and selenium.
 The UI is rendered with HTML/CSS/JS in a native window, while the automation logic is handled in Python.
-
-Fully portable: no installation required for end users [release build](https://github.com/safarsin/AutoRewarder/releases/tag/v2.0).
+Packaged with PyInstaller and distributed as a professional Windows installer (Inno Setup) with automatic dependency checking.
 
 > **For a complete user guide, see [USER_GUIDE.md](USER_GUIDE.md)**
+
+## Installation
+
+**Easy Way (Recommended):**
+Download `AutoRewarder-Setup.exe` from [releases](https://github.com/safarsin/AutoRewarder/releases/tag/v2.0) and run it. The installer will verify all dependencies and install the app for you.
+
+**Manual Way (Source):**
+Clone this repo, create virtual environment, and run `python AutoRewarder.py`.
 
 ## Screenshots
 
 | Main Window | History Window |
 | :---: | :---: |
-| Coming soon | Coming soon |
+| TODO | TODO |
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Backend | Python 3.12, selenium, pywebview |
+| Backend | Python 3.12, [selenium](https://www.selenium.dev/), [pywebview](https://pywebview.flowrl.com/) |
 | Frontend | HTML, CSS, JavaScript |
 | Bridge | pywebview JS API (pywebview.api) |
-| Build | PyInstaller |
+| Build | [PyInstaller](https://pyinstaller.org/), [Inno Setup](https://jrsoftware.org/isinfo.php) |
 
 ## System Requirements
 
 - **OS**: Windows 10 or later
 - **Browser**: Microsoft Edge (driver managed by Selenium Manager)
+- **.NET Framework**: 4.8 or higher (automatically checked by installer)
 - **RAM**: Minimum 512 MB (1 GB recommended)
 - **Disk Space**: ~50 MB
 
@@ -72,13 +80,18 @@ pip install -r requirements.txt
 python AutoRewarder.py
 ```
 
-## Build Portable Release
+## Build & Distribution
 
-Recommended (reproducible) build using spec:
-
+**Build EXE (for installer creation):**
 ```bash
 .\.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean AutoRewarder.spec
 ```
+
+**Create Windows Installer:**
+```bash
+"C:\Program Files (x86)\Inno Setup 6\iscc.exe" AutoRewarder.iss
+```
+Output: `dist/AutoRewarder-Setup.exe`
 
 ## Project Structure
 
@@ -95,6 +108,7 @@ AutoRewarder/
 │   └── queries.json      # Queries list (3428 unique queries)
 ├── AutoRewarder.py       # Python backend and webview window
 ├── AutoRewarder.spec     # PyInstaller build spec
+├── AutoRewarder.iss      # Inno Setup installer script
 ├── LICENSE              
 ├── README.md            
 └── requirements.txt      
@@ -141,8 +155,9 @@ history.json   # Search history (date, time, query, status)
 - [ ] Statistics dashboard (points tracking, session summaries)
 - [ ] Multi-account support (manage multiple Rewards accounts)
 - [ ] Script-only version (CLI tool without GUI)
-- [ ] An intaller version (Inno Setup or similar)
+- [x] Windows installer with dependency checking (Inno Setup)
 - [ ] Keyboard shortcuts
+- [ ] UI themes (dark/light mode)
 
 ## Disclaimer
 
