@@ -41,7 +41,7 @@ Fully portable: no installation required for end users (release build).
 **Automation Features:**
 - Background WebDriver warmup at startup for faster execution
 - Human-like search behavior (typing delays, random pauses, smooth scrolling)
-- Uses real-world queries from assets/queries.json (3428 unique entries)
+- Uses real-world queries from assets/queries.json (3428 unique entries from google-trends dataset)
 - Randomized delays to avoid detection
 - Separate browser thread isolation
 
