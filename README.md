@@ -3,7 +3,7 @@
 A desktop automation app for Microsoft Rewards that performs Bing searches with human-like behavior.
 Built with Python, pywebview, and selenium.
 The UI is rendered with HTML/CSS/JS in a native window, while the automation logic is handled in Python.
-Packaged with PyInstaller and distributed as a professional Windows installer (Inno Setup) with automatic dependency checking.
+Packaged with PyInstaller and distributed as a modern Windows installer (Inno Setup) with automatic dependency checking.
 
 > **For a complete user guide, see [USER_GUIDE.md](USER_GUIDE.md)**
 
@@ -19,7 +19,8 @@ Clone this repo, create virtual environment, and run `python AutoRewarder.py`.
 
 | Main Window | History Window |
 | :---: | :---: |
-| TODO | TODO |
+| <img src="assets/screenshots/main_window.png"> | <img src="assets/screenshots/history_window.png"> |
+| <img src="assets/screenshots/main_window1.png"> | <img src="assets/screenshots/history_window1.png"> |
 
 ## Tech Stack
 
@@ -91,6 +92,7 @@ python AutoRewarder.py
 ```bash
 "C:\Program Files (x86)\Inno Setup 6\iscc.exe" AutoRewarder.iss
 ```
+Or use the Inno Setup IDE to open `AutoRewarder.iss` and compile it.
 Output: `dist/AutoRewarder-Setup.exe`
 
 ## Project Structure

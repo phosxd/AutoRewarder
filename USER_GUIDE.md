@@ -20,22 +20,24 @@ Welcome! This guide will help you get started with AutoRewarder and explain all 
 ## Installation
 
 ### Step 1: Download
-1. Go to the [Releases page](https://github.com/safarsin/AutoRewarder/releases/tag/v2.0) on GitHub
-2. Find the latest release
-3. Download the file named `AutoRewarder.zip`
+1. Go to the [Releases page](https://github.com/safarsin/AutoRewarder/releases) on GitHub
+2. Find the latest release (v2.0 or newer)
+3. Download `AutoRewarder-Setup.exe`
 
-### Step 2: Extract
-1. Right-click the downloaded ZIP file
-2. Select **Extract All**
-3. Choose a folder where you want to extract (e.g., Desktop or Documents)
-4. Click **Extract**
+### Step 2: Install
+1. Double-click the downloaded `AutoRewarder-Setup.exe`
+2. The installer will:
+   - Verify you have Microsoft Edge installed
+   - Verify you have .NET Framework 4.8 or higher
+   - Install AutoRewarder to Program Files
+3. Click **Next** through the setup wizard
+4. Optionally create a desktop shortcut (recommended)
+5. Click **Finish**
 
 ### Step 3: Run
-1. Open the extracted folder
-2. Double-click `AutoRewarder.exe`
-3. The app will open in a window
+1. Just run the app from the Start Menu or desktop shortcut
 
-**That's it!** No installation needed.
+**That's it!** Installer handles everything for you.
 
 ---
 
@@ -45,16 +47,18 @@ When you run AutoRewarder for the first time, you'll see a first setup button.
 
 ### What is First Setup?
 
-First Setup creates a special profile for Microsoft Edge that AutoRewarder uses. This keeps it separate from your personal browsing data and settings. It only needs to be done once. After that, you can start using AutoRewarder without worrying about it affecting your regular Edge profile.
+First Setup creates a special profile for Microsoft Edge that AutoRewarder will use. This keeps it separate from your personal browsing data and settings. It only needs to be done once. After that, you can start using AutoRewarder without worrying about it affecting your regular Edge profile.
 
 ### How to Complete First Setup
 
 1. Click the **First Setup** button on the main window
 2. Wait for it to complete (you should see Microsoft Edge open)
-3. Then you should authorize your acount by signing in to Microsoft Rewards in the Bing page that opens
-4. You're ready to use AutoRewarder!
+3. Sign in to your Microsoft Rewards account on the Bing page that opens (don't sync browser)
+<img src="assets/screenshots/sing_in.png" alt="Sign in screenshot" width="400">
+4. Close the browser when done
+5. You're ready to use AutoRewarder!
 
-**You only need to do this once.** If you run the app again, First Setup won't appear.
+**You only need to do this once** If you run the app again, First Setup won't appear (it will use the saved profile).
 
 ---
 
