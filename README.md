@@ -111,7 +111,8 @@ AutoRewarder/
 │   └── normalize.css     # CSS reset
 ├── assets/
 │   ├── icon.ico          # App icon
-│   └── queries.json      # Queries list (3428 unique queries)
+│   ├── queries.json      # Queries list (3428 unique queries)
+│   └── screenshots/      # Screenshots and GIFs for documentation
 ├── AutoRewarder.py       # Python backend and webview window
 ├── AutoRewarder.spec     # PyInstaller build spec
 ├── AutoRewarder.iss      # Inno Setup installer script
