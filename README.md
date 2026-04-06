@@ -163,6 +163,7 @@ history.json   # Search history (date, time, query, status)
 - [ ] Multi-account support (manage multiple Rewards accounts)
 - [ ] Script-only version (CLI tool without GUI)
 - [x] Windows installer with dependency checking (Inno Setup)
+- [ ] Action Chains Selenium
 - [ ] Keyboard shortcuts
 - [ ] UI themes (dark/light mode)
 
